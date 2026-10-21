@@ -1,0 +1,6 @@
+node_modules
+dist
+.opencode
+.env.local
+.env.*.local
+!.env.example
