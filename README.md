@@ -21,11 +21,12 @@ The marketplace schema migration is:
 supabase/migrations/20261021000000_marketplace_schema.sql
 ```
 
-If the schema migration was already applied before the seller visibility policy
-was corrected, also apply:
+If the schema migration was already applied, also apply these visibility
+repairs:
 
 ```text
 supabase/migrations/20261022000000_repair_project_visibility.sql
+supabase/migrations/20261023000000_make_projects_visible_to_authenticated_users.sql
 ```
 
 It defines the marketplace tables, relationships, enums, timestamp triggers, auth profile trigger, RLS policies, moderation protections, and Storage buckets/policies. It has **not** been applied from this workspace because the supplied anon key is not sufficient for schema administration and the Supabase CLI is not linked here.
@@ -42,9 +43,9 @@ npx supabase db push
 
 Review the migrations and existing schema before applying them. The original
 schema migration is additive and preserves existing policies with the same
-names; the follow-up repair migration intentionally replaces the stale
-authenticated project read policy so sellers can see their own drafts and
-review submissions.
+names; the follow-up migrations replace stale project read policies. Signed-in
+users can discover projects created by other signed-in users, including drafts
+and review submissions. Anonymous users still see only published projects.
 
 ### Apply with the Supabase SQL Editor
 
@@ -61,8 +62,7 @@ After applying it, verify:
 - RLS is enabled on every marketplace table;
 - the four Storage buckets exist;
 - buyer/seller users cannot set elevated roles or publish their own listing;
-- sellers can read their own projects, including drafts, in-review listings,
-  and paused listings;
+- signed-in users can read projects created by other signed-in users;
 - private Storage objects are not readable by unrelated users.
 
 ## Checks run

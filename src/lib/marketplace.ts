@@ -108,10 +108,10 @@ export async function updateProfile(userId: string, changes: Partial<Profile>) {
 
 export async function listProjects(params: { viewerId: string; search: string; industry: string; page: number; pageSize: number }) {
   const from = (params.page - 1) * params.pageSize
-  // Public users see published projects. An authenticated seller can also see
-  // their own drafts/in-review listings, while those records remain private to
-  // everyone else under the database RLS policy.
-  let query = getSupabase().from('projects').select('*', { count: 'exact' }).or(`status.eq.published,seller_id.eq.${params.viewerId}`).order('created_at', { ascending: false }).range(from, from + params.pageSize - 1)
+  // Browse is available only after authentication, and the marketplace
+  // workspace intentionally lets signed-in users discover every project,
+  // including projects that are still drafts or in review.
+  let query = getSupabase().from('projects').select('*', { count: 'exact' }).order('created_at', { ascending: false }).range(from, from + params.pageSize - 1)
   if (params.search.trim()) {
     const search = params.search.trim().replace(/[,()]/g, ' ')
     query = query.or(`title.ilike.%${search}%,summary.ilike.%${search}%,description.ilike.%${search}%`)
