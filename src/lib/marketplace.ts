@@ -53,6 +53,7 @@ export type PublicProfile = {
   projects_posted: number
   projects_sold: number
   projects_bought: number
+  posted_projects: Array<Pick<Project, 'id' | 'title' | 'summary' | 'status' | 'created_at'>>
   sold_projects: Array<Pick<Project, 'id' | 'title' | 'summary' | 'status' | 'created_at'>>
   bought_projects: Array<Pick<Project, 'id' | 'title' | 'summary' | 'status' | 'created_at'>>
 }
@@ -177,6 +178,11 @@ export async function updateProject(projectId: string, sellerId: string, input: 
   const { data, error } = await getSupabase().from('projects').update(input).eq('id', projectId).eq('seller_id', sellerId).select('*').single()
   fail(error)
   return data as Project
+}
+
+export async function deleteProject(projectId: string, sellerId: string) {
+  const { error } = await getSupabase().from('projects').delete().eq('id', projectId).eq('seller_id', sellerId)
+  fail(error)
 }
 
 export async function listOwnProjects(sellerId: string) {

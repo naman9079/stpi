@@ -76,10 +76,16 @@ h1, h2, h3, p { margin-top: 0; } h1 { font-size: clamp(27px, 4vw, 42px); letter-
 .profile-project-columns .panel-heading { margin-bottom: 12px; }
 .profile-project-columns h3 { margin: 0; }
 .status.sold { color: #177451; background: #e8f8f0; }
+.listing-actions { display: flex; align-items: center; gap: 7px; }
+.listing-actions .danger-button { padding: 8px 10px; }
 
 @media (max-width: 580px) {
   .profile-stats, .profile-details, .profile-project-columns { grid-template-columns: 1fr; }
   .profile-stats { gap: 18px; }
+}
+
+@media (min-width: 900px) {
+  .profile-project-columns { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 }
 
 /* Marketplace visual direction: dark, compact, metrics-first startup pages. */

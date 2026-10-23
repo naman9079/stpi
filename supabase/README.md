@@ -8,6 +8,8 @@ authenticated project read policy, followed by
 to make all projects visible inside the authenticated marketplace workspace.
 For chat delivery/read ticks, public profile activity, and WebP project logos,
 also apply `migrations/20261023010000_profile_chat_logo_features.sql`.
+For the complete list of projects on each profile, also apply
+`migrations/20261023020000_profile_listed_projects.sql`.
 It creates the marketplace tables, enums, timestamps, role helpers, RLS policies, storage buckets, and storage policies. Storage object paths are expected to begin with the related project UUID (for example, `<project-id>/cover.png`).
 
 These migrations have **not** been applied from this workspace. Apply them only
