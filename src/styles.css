@@ -78,6 +78,14 @@ h1, h2, h3, p { margin-top: 0; } h1 { font-size: clamp(27px, 4vw, 42px); letter-
 .status.sold { color: #177451; background: #e8f8f0; }
 .listing-actions { display: flex; align-items: center; gap: 7px; }
 .listing-actions .danger-button { padding: 8px 10px; }
+.listing-item { position: relative; cursor: pointer; }
+.listing-item:hover { border-color: #76531b; background: #211b10; }
+.listing-menu-wrap { position: relative; margin-left: auto; flex: 0 0 auto; }
+.listing-menu-button { width: 30px; height: 30px; border: 0; border-radius: 7px; background: transparent; color: #d4d4d8; font-size: 22px; line-height: 1; }
+.listing-menu-button:hover, .listing-menu-button[aria-expanded="true"] { background: #2a1c08; color: #fbbf24; }
+.listing-menu { position: absolute; z-index: 10; top: calc(100% + 6px); right: 0; min-width: 105px; padding: 5px; border: 1px solid #3f3f46; border-radius: 8px; background: #18181b; box-shadow: 0 12px 26px rgba(0, 0, 0, .35); }
+.listing-menu button { display: block; width: 100%; padding: 8px 9px; border: 0; border-radius: 5px; background: transparent; color: #e4e4e7; text-align: left; font-size: 11px; }
+.listing-menu button:hover { background: #2a1c08; color: #fbbf24; }
 
 @media (max-width: 580px) {
   .profile-stats, .profile-details, .profile-project-columns { grid-template-columns: 1fr; }
@@ -194,7 +202,7 @@ h1, h2, h3, p { color: inherit; }
 }
 
 /* Reusable sponsor promotion template inspired by the reference marketplace's sponsor rail. */
-.sponsor-rail { width: 100%; overflow: hidden; border-bottom: 1px solid #29292e; background: #0e0e10; }
+.sponsor-rail { position: sticky; top: 72px; z-index: 20; width: 100%; overflow: hidden; border-bottom: 1px solid #29292e; background: rgba(14, 14, 16, .97); box-shadow: 0 8px 22px rgba(0, 0, 0, .2); backdrop-filter: blur(12px); }
 .sponsor-rail-header { max-width: 1120px; margin: 0 auto; padding: 12px 5vw 9px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .sponsor-rail-header .eyebrow { display: inline-block; margin: 0 10px 0 0; color: #fbbf24; }
 .sponsor-rail-copy { color: #a1a1aa; font-size: 11px; }
@@ -211,7 +219,7 @@ h1, h2, h3, p { color: inherit; }
 .sponsor-ad-copy small { overflow: hidden; color: #a1a1aa; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
 .sponsor-category { color: #d6b77b; font: 9px 'DM Mono', monospace; white-space: nowrap; }
 .auth-screen { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 28px; padding: 0 28px 28px; }
-.auth-screen > .sponsor-rail { width: min(1120px, calc(100% + 56px)); }
+.auth-screen > .sponsor-rail { top: 0; width: min(1120px, calc(100% + 56px)); }
 .auth-screen .auth-layout { margin-bottom: 40px; }
 @keyframes sponsor-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 

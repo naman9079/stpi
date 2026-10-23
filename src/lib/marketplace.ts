@@ -191,6 +191,13 @@ export async function listOwnProjects(sellerId: string) {
   return hydrateProjectLogos((data ?? []) as Project[])
 }
 
+export async function getProject(projectId: string) {
+  const { data, error } = await getSupabase().from('projects').select('*').eq('id', projectId).single()
+  fail(error)
+  const projects = await hydrateProjectLogos([data as Project])
+  return projects[0]
+}
+
 export async function uploadProjectLogo(projectId: string, file: File) {
   const webp = await convertImageToWebp(file)
   const path = `${projectId}/logo.webp`
