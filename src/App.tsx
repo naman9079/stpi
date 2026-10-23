@@ -75,7 +75,7 @@ function App() {
     </header>
     <SponsorRail />
     <div className="workspace-frame">
-      <SponsorSideBrand />
+      <SponsorSideBrand side="left" />
       <main className="content">
       <div className="welcome-row"><div><p className="eyebrow">SIGNED IN AS {user.email}</p><h1>{view === 'browse' ? 'Find your next launch.' : labelFor(view)}</h1></div><span className="role-pill">{profile?.role || 'buyer'} workspace</span></div>
       {notice && <div className="notice success">{notice}<button onClick={() => setNotice('')}>×</button></div>}
@@ -86,8 +86,9 @@ function App() {
       {view === 'saved' && <Saved userId={user.id} onNotice={setNotice} onError={setError} />}
       {view === 'messages' && <Messages userId={user.id} onNotice={setNotice} onError={setError} onProfile={openProfile} />}
       {view === 'profile' && profileId && <ProfileView profileId={profileId} userId={user.id} onProjectOpen={openProject} onProjectEdit={editProject} onError={setError} onNotice={setNotice} />}
-      {view === 'admin' && profile?.role === 'admin' && <Admin onNotice={setNotice} onError={setError} />}
-      </main>
+       {view === 'admin' && profile?.role === 'admin' && <Admin onNotice={setNotice} onError={setError} />}
+       </main>
+      <SponsorSideBrand side="right" />
     </div>
     {openedProject && <ProjectPanel project={openedProject} checklist={[]} onClose={() => setOpenedProject(null)} userId={user.id} onNotice={setNotice} onError={setError} />}
   </div>
@@ -110,8 +111,8 @@ function SponsorRail() {
   return <section id="sponsor" className="sponsor-rail" aria-label="Sponsored partners"><div className="sponsor-marquee"><div className="sponsor-track">{repeatedAds.map((ad, index) => <a className="sponsor-ad" href={ad.href} key={`${ad.name}-${index}`}><span className="sponsor-mark">{ad.mark}</span><span className="sponsor-ad-copy"><strong>{ad.name}</strong><small>{ad.message}</small></span><span className="sponsor-category">{ad.category}</span></a>)}</div></div></section>
 }
 
-function SponsorSideBrand() {
-  return <aside className="sponsor-side-brand" aria-label="Sponsored brand placements">{sponsorAds.map((ad) => <a className="sponsor-side-card" href={ad.href} key={ad.name}><div className="sponsor-side-logo">{ad.logoUrl ? <img src={ad.logoUrl} alt="" /> : ad.mark}</div><h2>{ad.name}</h2><p>{ad.message}</p></a>)}</aside>
+function SponsorSideBrand({ side }: { side: 'left' | 'right' }) {
+  return <aside className={`sponsor-side-brand sponsor-side-${side}`} aria-label={`${side} sponsored brand placements`}>{sponsorAds.map((ad) => <a className="sponsor-side-card" href={ad.href} key={ad.name}><div className="sponsor-side-logo">{ad.logoUrl ? <img src={ad.logoUrl} alt="" /> : ad.mark}</div><h2>{ad.name}</h2><p>{ad.message}</p></a>)}</aside>
 }
 
 type ActionProps = { onNotice: (s: string) => void; onError: (s: string) => void }
