@@ -107,12 +107,11 @@ function AuthScreen({ notice, error, onNotice, onError }: { notice: string; erro
 
 function SponsorRail() {
   const repeatedAds = [...sponsorAds, ...sponsorAds]
-  return <section id="sponsor" className="sponsor-rail" aria-label="Sponsored partners"><div className="sponsor-rail-header"><div><span className="eyebrow">SPONSORED PARTNERS</span><span className="sponsor-rail-copy">Tools and services trusted by the startup community.</span></div><a className="sponsor-advertise" href="#sponsor">Advertise</a></div><div className="sponsor-marquee"><div className="sponsor-track">{repeatedAds.map((ad, index) => <a className="sponsor-ad" href={ad.href} key={`${ad.name}-${index}`}><span className="sponsor-mark">{ad.mark}</span><span className="sponsor-ad-copy"><strong>{ad.name}</strong><small>{ad.message}</small></span><span className="sponsor-category">{ad.category}</span></a>)}</div></div></section>
+  return <section id="sponsor" className="sponsor-rail" aria-label="Sponsored partners"><div className="sponsor-marquee"><div className="sponsor-track">{repeatedAds.map((ad, index) => <a className="sponsor-ad" href={ad.href} key={`${ad.name}-${index}`}><span className="sponsor-mark">{ad.mark}</span><span className="sponsor-ad-copy"><strong>{ad.name}</strong><small>{ad.message}</small></span><span className="sponsor-category">{ad.category}</span></a>)}</div></div></section>
 }
 
 function SponsorSideBrand() {
-  const ad = sponsorAds[0]
-  return <aside className="sponsor-side-brand" aria-label="Sponsored brand placement"><span className="sponsor-side-label">SPONSORED</span><div className="sponsor-side-logo">{ad.logoUrl ? <img src={ad.logoUrl} alt="" /> : ad.mark}</div><span className="sponsor-side-category">{ad.category}</span><h2>{ad.name}</h2><p>{ad.message}</p><a className="sponsor-side-cta" href={ad.href}>Promote your brand <span>↗</span></a><div className="sponsor-side-meta"><span>Native placement</span><span>Founders & buyers</span></div></aside>
+  return <aside className="sponsor-side-brand" aria-label="Sponsored brand placements">{sponsorAds.map((ad) => <a className="sponsor-side-card" href={ad.href} key={ad.name}><div className="sponsor-side-logo">{ad.logoUrl ? <img src={ad.logoUrl} alt="" /> : ad.mark}</div><h2>{ad.name}</h2><p>{ad.message}</p></a>)}</aside>
 }
 
 type ActionProps = { onNotice: (s: string) => void; onError: (s: string) => void }

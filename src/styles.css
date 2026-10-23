@@ -201,13 +201,8 @@ h1, h2, h3, p { color: inherit; }
   .detail-hero h2 { font-size: 25px; }
 }
 
-/* Reusable sponsor promotion template inspired by the reference marketplace's sponsor rail. */
+/* Compact sponsor placements: the top rail scrolls horizontally and the workspace rail stacks small cards. */
 .sponsor-rail { position: sticky; top: 72px; z-index: 20; width: 100%; overflow: hidden; border-bottom: 1px solid #29292e; background: rgba(14, 14, 16, .97); box-shadow: 0 8px 22px rgba(0, 0, 0, .2); backdrop-filter: blur(12px); }
-.sponsor-rail-header { max-width: 1120px; margin: 0 auto; padding: 12px 5vw 9px; display: flex; align-items: center; justify-content: space-between; gap: 18px; }
-.sponsor-rail-header .eyebrow { display: inline-block; margin: 0 10px 0 0; color: #fbbf24; }
-.sponsor-rail-copy { color: #a1a1aa; font-size: 11px; }
-.sponsor-advertise { color: #18181b; background: #f59e0b; border-radius: 999px; padding: 6px 11px; font-size: 10px; font-weight: 800; text-decoration: none; white-space: nowrap; }
-.sponsor-advertise:hover { background: #fbbf24; }
 .sponsor-marquee { overflow: hidden; border-top: 1px solid #1f1f23; }
 .sponsor-track { display: flex; width: max-content; gap: 10px; padding: 9px 0; animation: sponsor-scroll 42s linear infinite; }
 .sponsor-track:hover { animation-play-state: paused; }
@@ -225,17 +220,15 @@ h1, h2, h3, p { color: inherit; }
 
 .workspace-frame { width: min(1400px, 100%); margin: 0 auto; display: grid; grid-template-columns: 208px minmax(0, 1120px); gap: 26px; align-items: start; }
 .workspace-frame .content { width: 100%; max-width: none; min-width: 0; }
-.sponsor-side-brand { position: sticky; top: 104px; margin-top: 48px; padding: 20px 17px 16px; border: 1px solid #3d2a0e; border-radius: 12px; background: linear-gradient(165deg, #1e1508 0%, #141416 58%, #101012 100%); box-shadow: 0 18px 42px rgba(0, 0, 0, .25); overflow: hidden; }
-.sponsor-side-brand::after { content: ''; position: absolute; width: 110px; height: 110px; right: -55px; bottom: -55px; border: 1px solid rgba(245, 158, 11, .2); border-radius: 50%; box-shadow: 0 0 0 16px rgba(245, 158, 11, .04), 0 0 0 32px rgba(245, 158, 11, .025); pointer-events: none; }
-.sponsor-side-label { color: #d6b77b; font: 9px 'DM Mono', monospace; letter-spacing: .14em; }
-.sponsor-side-logo { display: grid; place-items: center; width: 64px; height: 64px; margin: 22px 0 14px; border: 1px solid #6c4a16; border-radius: 16px; background: #2a1c08; color: #fbbf24; font-size: 27px; font-weight: 800; }
+.sponsor-side-brand { position: sticky; top: 104px; display: flex; flex-direction: column; gap: 14px; margin-top: 48px; }
+.sponsor-side-card { min-height: 126px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 12px 14px; border: 1px solid #49304d; border-radius: 12px; background: #351d37; color: #f4eaf5; box-shadow: 0 12px 28px rgba(0, 0, 0, .24); text-align: center; text-decoration: none; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.sponsor-side-card:nth-child(2n) { border-color: #195236; background: #123b2b; }
+.sponsor-side-card:nth-child(3n) { border-color: #2f416f; background: #18223d; }
+.sponsor-side-card:hover { transform: translateY(-2px); border-color: #fbbf24; }
+.sponsor-side-logo { display: grid; place-items: center; width: 32px; height: 32px; margin: 0 0 10px; border: 0; border-radius: 7px; background: #f59e0b; color: #18181b; font-size: 16px; font-weight: 800; }
 .sponsor-side-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 15px; }
-.sponsor-side-category { color: #fbbf24; font: 9px 'DM Mono', monospace; text-transform: uppercase; }
-.sponsor-side-brand h2 { margin: 7px 0 8px; font-size: 18px; color: #fff7ed; }
-.sponsor-side-brand p { min-height: 74px; margin-bottom: 18px; color: #d4c3a2; font-size: 12px; line-height: 1.55; }
-.sponsor-side-cta { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 11px; border-radius: 8px; background: #f59e0b; color: #18181b; font-size: 11px; font-weight: 800; text-decoration: none; }
-.sponsor-side-cta:hover { background: #fbbf24; }
-.sponsor-side-meta { display: flex; flex-direction: column; gap: 6px; margin-top: 17px; color: #8e8170; font: 9px 'DM Mono', monospace; }
+.sponsor-side-card h2 { margin: 0 0 7px; font-size: 14px; color: #fff7ed; }
+.sponsor-side-card p { min-height: 34px; margin: 0; color: #d7c9da; font: 11px/1.45 'DM Mono', monospace; }
 
 @media (max-width: 1353px) and (min-width: 1001px) {
   .workspace-frame { grid-template-columns: 180px minmax(0, 1fr); gap: 18px; padding-inline: 18px; }
@@ -254,9 +247,6 @@ h1, h2, h3, p { color: inherit; }
 @media (max-width: 700px) {
   .workspace-frame { display: block; }
   .sponsor-side-brand { display: none; }
-  .sponsor-rail-header { align-items: flex-start; padding-inline: 18px; }
-  .sponsor-rail-header > div { display: flex; flex-direction: column; gap: 4px; }
-  .sponsor-rail-header .eyebrow { margin: 0; }
   .sponsor-ad { min-width: 245px; }
   .sponsor-category { display: none; }
 }
