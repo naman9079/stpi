@@ -30,6 +30,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
 }
 
+function isMissingMetricsTable(error: { code?: string; message?: string } | null | undefined) {
+  return error?.code === '42P01' || error?.message?.includes('public.sponsor_metrics') || error?.message?.includes('sponsor_metrics')
+}
+
 function normalizeMetric(slug: string, value: unknown): SponsorMetrics | null {
   if (!isRecord(value)) return null
   const revenue = isRecord(value.revenue) ? value.revenue as SponsorMetricSeries : undefined
@@ -60,7 +64,10 @@ function normalizeStoredMetric(value: Record<string, unknown>): SponsorMetrics |
 export async function listStoredSponsorMetrics(slugs?: string[]): Promise<SponsorMetricsBySlug> {
   const query = getSupabase().from('sponsor_metrics').select('*')
   const result = slugs?.length ? await query.in('slug', slugs) : await query
-  if (result.error) throw result.error
+  if (result.error) {
+    if (isMissingMetricsTable(result.error)) return {}
+    throw result.error
+  }
   return Object.fromEntries((result.data || [])
     .map((row) => normalizeStoredMetric(row as Record<string, unknown>))
     .filter((metric): metric is SponsorMetrics => Boolean(metric))
