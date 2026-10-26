@@ -3,6 +3,7 @@
 -- drafts. Anonymous users still see only published projects through the
 -- separate anonymous policy.
 drop policy if exists projects_select_published_or_owner on public.projects;
+drop policy if exists projects_select_authenticated on public.projects;
 
 create policy projects_select_authenticated
   on public.projects

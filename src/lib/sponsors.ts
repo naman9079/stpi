@@ -109,7 +109,13 @@ export async function fetchSponsorMetrics(slugs: string[]): Promise<SponsorMetri
   try {
     const url = new URL(endpoint, window.location.origin)
     url.searchParams.set('slugs', slugs.join(','))
-    const response = await fetch(url, { headers: { Accept: 'application/json' } })
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
+    const headers: Record<string, string> = { Accept: 'application/json' }
+    if (anonKey) {
+      headers.apikey = anonKey
+      headers.Authorization = `Bearer ${anonKey}`
+    }
+    const response = await fetch(url, { headers })
     if (!response.ok) throw new Error(`Sponsor metrics request failed (${response.status}).`)
 
     const payload: unknown = await response.json()
