@@ -1,4 +1,4 @@
-# Launchpad Marketplace MVP
+# BuildExist Marketplace
 
 This repository contains a compact Vite + React + TypeScript marketplace MVP backed by Supabase.
 
