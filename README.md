@@ -13,6 +13,68 @@ npm run dev
 
 The browser client reads only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The local env file is ignored by git. Never put a service-role key, database password, or other privileged credential in Vite environment variables.
 
+## Sponsor metrics
+
+The sponsor rail currently contains only **Matiks** and **TrustMRR**. Side cards poll
+`VITE_SPONSOR_METRICS_URL` every 60 seconds and show today, 7-day, 30-day, 3-month,
+6-month, 1-year, lifetime revenue, raised funding, customers, and active subscriptions.
+
+The endpoint must keep provider API keys server-side and return JSON in this shape:
+
+```json
+{
+  "sponsors": {
+    "matiks": {
+      "revenue": { "day": 10000, "week": 70000, "month": 300000, "threeMonths": 900000, "sixMonths": 1800000, "year": 3600000, "lifetime": 5000000 },
+      "raised": 314000000,
+      "customers": 1200,
+      "activeSubscriptions": 300,
+      "updatedAt": "2026-10-23T12:00:00.000Z",
+      "currency": "USD",
+      "source": "provider-name"
+    },
+    "trustmrr": { "revenue": {}, "raised": null, "updatedAt": "2026-10-23T12:00:00.000Z" }
+  }
+}
+```
+
+Amounts are integer cents. The endpoint should aggregate the historical periods
+and return a fresh `updatedAt` value on every successful sync. Do not place a
+TrustMRR API key or a Matiks provider key in `.env.local` under a `VITE_` name;
+proxy both integrations through a server-side function.
+
+### Matiks fallback plan
+
+Matiks does not currently have a verified public metrics API in this project.
+The implemented fallback is:
+
+1. TrustMRR data is synced by `supabase/functions/sponsor-metrics` when a
+   TrustMRR key and startup slug are configured.
+2. Matiks metrics are stored in `public.sponsor_metrics` and can be edited by
+   an admin in the app under **Moderate → Manual sponsor metrics**.
+3. The app subscribes to Supabase Realtime changes and still polls the metrics
+   endpoint every 60 seconds.
+4. TrustMRR snapshots are stored in `public.sponsor_metric_snapshots` so the
+   server can calculate longer periods as history accumulates.
+
+Deploy the fallback function after applying the sponsor migration:
+
+```bash
+npx supabase functions deploy sponsor-metrics
+npx supabase secrets set TRUSTMRR_API_KEY=tmrr_your_private_key
+npx supabase secrets set TRUSTMRR_SPONSOR_SLUGS=matiks,trustmrr
+```
+
+Then point the frontend at the deployed function:
+
+```env
+VITE_SPONSOR_METRICS_URL=https://your-project.supabase.co/functions/v1/sponsor-metrics
+```
+
+If Matiks later provides an official API, add its server-side credentials to
+the Edge Function and replace the manual row with a Matiks adapter. Until then,
+Matiks values are labeled `manual` and are not presented as verified live data.
+
 ## Database setup
 
 The marketplace schema migration is:
@@ -27,6 +89,7 @@ repairs:
 ```text
 supabase/migrations/20261022000000_repair_project_visibility.sql
 supabase/migrations/20261023000000_make_projects_visible_to_authenticated_users.sql
+supabase/migrations/20261026030000_sponsor_metrics_fallback.sql
 ```
 
 It defines the marketplace tables, relationships, enums, timestamp triggers, auth profile trigger, RLS policies, moderation protections, and Storage buckets/policies. It has **not** been applied from this workspace because the supplied anon key is not sufficient for schema administration and the Supabase CLI is not linked here.
