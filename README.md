@@ -64,8 +64,18 @@ Deploy the fallback function after applying the sponsor migration:
 ```bash
 npx supabase functions deploy sponsor-metrics
 npx supabase secrets set TRUSTMRR_API_KEY=tmrr_your_private_key
-npx supabase secrets set TRUSTMRR_SPONSOR_SLUGS=matiks,trustmrr
+npx supabase secrets set TRUSTMRR_STARTUP_SLUGS=actual-matiks-slug,actual-trustmrr-slug
 ```
+
+The deployed function must be reachable at:
+
+```text
+https://jyvavcqpnxhlneaigpgv.supabase.co/functions/v1/sponsor-metrics
+```
+
+If that URL returns 404, deploy the function before testing the frontend. The
+startup slugs must be the exact `slug` values returned by TrustMRR's list
+endpoint; startup names are not always valid slugs.
 
 Then point the frontend at the deployed function:
 

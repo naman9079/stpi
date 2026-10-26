@@ -99,7 +99,9 @@ export function subscribeToSponsorMetrics(onChange: () => void) {
 }
 
 export async function fetchSponsorMetrics(slugs: string[]): Promise<SponsorMetricsBySlug> {
-  const endpoint = (import.meta.env.VITE_STARTUP_METRICS_URL || import.meta.env.VITE_SPONSOR_METRICS_URL)?.trim()
+  const configuredEndpoint = (import.meta.env.VITE_STARTUP_METRICS_URL || import.meta.env.VITE_SPONSOR_METRICS_URL)?.trim()
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL?.trim()
+  const endpoint = configuredEndpoint || (supabaseUrl ? `${supabaseUrl}/functions/v1/sponsor-metrics` : '')
   if (slugs.length === 0) return {}
 
   if (!endpoint) return listStoredSponsorMetrics(slugs)

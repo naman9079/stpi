@@ -31,6 +31,13 @@ function env(name: string) {
   return Deno.env.get(name)?.trim() || ''
 }
 
+function errorMessage(status: number, body: unknown) {
+  const detail = typeof body === 'object' && body !== null && 'error' in body
+    ? String((body as { error?: unknown }).error || '')
+    : ''
+  return detail || `TrustMRR API returned ${status}.`
+}
+
 function periodDelta(snapshots: Array<{ total_revenue_cents: number | null; captured_at: string }>, days: number) {
   if (snapshots.length < 2) return null
   const latest = snapshots[snapshots.length - 1]
@@ -42,14 +49,14 @@ function periodDelta(snapshots: Array<{ total_revenue_cents: number | null; capt
 
 async function syncTrustMrr(slug: string, admin: ReturnType<typeof createClient>) {
   const key = env('TRUSTMRR_API_KEY')
-  if (!key) return null
+  if (!key) throw new Error('TRUSTMRR_API_KEY is not configured in Supabase Edge Function secrets.')
   const response = await fetch(`https://trustmrr.com/api/v1/startups/${encodeURIComponent(slug)}`, {
     headers: { Authorization: `Bearer ${key}`, Accept: 'application/json' },
   })
-  if (!response.ok) return null
   const payload = await response.json()
+  if (!response.ok) throw new Error(`${slug}: ${errorMessage(response.status, payload)}`)
   const data = payload?.data
-  if (!data?.slug || !data?.revenue) return null
+  if (!data?.slug || !data?.revenue) throw new Error(`${slug}: TrustMRR returned no startup data.`)
 
   const snapshot = {
     slug,
@@ -103,12 +110,16 @@ Deno.serve(async (request) => {
   if (!supabaseUrl || !serviceRoleKey) return json({ error: 'Supabase service configuration is missing.' }, 500)
   const admin = createClient(supabaseUrl, serviceRoleKey)
   const requested = new URL(request.url).searchParams.get('slugs')?.split(',').map((slug) => slug.trim()).filter(Boolean) || []
-  const configured = env('TRUSTMRR_SPONSOR_SLUGS').split(',').map((slug: string) => slug.trim()).filter(Boolean)
-  const slugs = requested.length ? requested : configured.length ? configured : ['matiks', 'trustmrr']
+  const configured = env('TRUSTMRR_STARTUP_SLUGS').split(',').map((slug: string) => slug.trim()).filter(Boolean)
+  const slugs = configured.length ? configured : requested.length ? requested : ['matiks', 'trustmrr']
 
-  for (const slug of slugs) await syncTrustMrr(slug, admin)
+  const errors: string[] = []
+  for (const slug of slugs) {
+    try { await syncTrustMrr(slug, admin) } catch (error) { errors.push(error instanceof Error ? error.message : String(error)) }
+  }
   const rows = await admin.from('sponsor_metrics').select('*').in('slug', slugs)
   if (rows.error) return json({ error: rows.error.message }, 500)
+  if ((rows.data || []).length === 0 && errors.length > 0) return json({ error: errors.join(' ') }, 502)
   return json({ startups: Object.fromEntries((rows.data || []).map((row: any) => [row.slug, {
     slug: row.slug,
     revenue: row.revenue,
@@ -118,5 +129,5 @@ Deno.serve(async (request) => {
     currency: row.currency,
     source: row.source,
     updatedAt: row.updated_at,
-  }])) })
+  }])), errors: errors.length ? errors : undefined })
 })
