@@ -247,6 +247,18 @@ h1, h2, h3, p { color: inherit; }
 .sponsor-funding-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 9px; }
 .sponsor-panel-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 18px; color: #a1a1aa; font: 10px 'DM Mono', monospace; }
 .sponsor-panel-footer a { color: #fbbf24; text-decoration: none; }
+.startup-tracking { margin-bottom: 18px; padding: 18px; border: 1px solid #2d2d32; border-radius: 10px; background: #151517; }
+.startup-tracking .panel-heading { align-items: flex-start; }
+.startup-tracking .panel-heading h2 { margin-bottom: 4px; }
+.startup-tracking .panel-heading p { margin-bottom: 0; }
+.startup-tracking-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.startup-tracking-card { display: grid; grid-template-columns: 36px 1fr auto; align-items: center; gap: 10px; padding: 11px; border: 1px solid #3f3f46; border-radius: 8px; background: #18181b; color: #f4f4f5; text-align: left; }
+.startup-tracking-card:hover { border-color: #fbbf24; background: #211b10; }
+.startup-tracking-card > span:nth-child(2) { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.startup-tracking-card strong { font-size: 13px; }
+.startup-tracking-card small { color: #a1a1aa; font: 10px 'DM Mono', monospace; }
+.startup-tracking-revenue { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.startup-tracking-revenue strong { color: #86efac; }
 .sponsor-admin { margin-top: 16px; }
 .sponsor-admin-row { display: flex; flex-direction: column; gap: 14px; padding: 18px 0; border-top: 1px solid #2d2d32; }
 .sponsor-admin-row h3 { margin: 0 0 4px; }
@@ -277,5 +289,6 @@ h1, h2, h3, p { color: inherit; }
   .sponsor-metrics-panel { padding: 24px 18px; }
   .sponsor-metric-grid { grid-template-columns: repeat(2, 1fr); }
   .sponsor-funding-grid { grid-template-columns: 1fr; }
+  .startup-tracking-grid { grid-template-columns: 1fr; }
   .sponsor-admin-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

@@ -15,10 +15,17 @@ const industries = ['SaaS', 'Marketplace', 'AI', 'Mobile', 'Developer tools', 'E
 const sellerStatuses: ProjectStatus[] = ['draft', 'in_review', 'paused']
 const projectStatuses = sellerStatuses
 type SponsorAd = { slug: string; name: string; message: string; category: string; href: string; mark: string; logoUrl?: string }
+type TrackedStartup = { slug: string; name: string; message: string; category: string; href: string; mark: string }
 
 // Replace these entries with the sponsor campaigns sold by the marketplace.
 // Keeping the campaign data in one place makes the reusable ad rail easy to update.
 const sponsorAds: SponsorAd[] = [
+  { slug: 'sponsor-spotlight', name: 'Sponsor spotlight', message: 'Put your product in front of founders buying their next startup.', category: 'Featured partner', href: '#sponsor', mark: '✦' },
+  { slug: 'your-brand', name: 'Your brand here', message: 'Reach builders, buyers, and sellers while they compare projects.', category: 'Open placement', href: '#sponsor', mark: '↗' },
+  { slug: 'growth-partner', name: 'Growth partner', message: 'Promote your launch with a native card in the marketplace.', category: 'For sponsors', href: '#sponsor', mark: '◎' },
+  { slug: 'founder-tools', name: 'Founder tools', message: 'Become a trusted tool for the next generation of owners.', category: 'Sponsored', href: '#sponsor', mark: '◆' },
+]
+const trackedStartups: TrackedStartup[] = [
   { slug: 'matiks', name: 'Matiks', message: 'Math-powered games that make learning addictive.', category: 'Edtech · gaming', href: 'https://matiks.com', mark: 'M' },
   { slug: 'trustmrr', name: 'TrustMRR', message: 'Verified startup revenue and acquisition marketplace.', category: 'Startup marketplace', href: 'https://trustmrr.com', mark: 'T' },
 ]
@@ -33,13 +40,13 @@ function App() {
   const [profileId, setProfileId] = useState<string | null>(null)
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null)
   const [openedProject, setOpenedProject] = useState<Project | null>(null)
-  const [openedSponsor, setOpenedSponsor] = useState<SponsorAd | null>(null)
+  const [openedStartup, setOpenedStartup] = useState<TrackedStartup | null>(null)
   const [sponsorMetrics, setSponsorMetrics] = useState<SponsorMetricsBySlug>({})
   const [sponsorMetricsError, setSponsorMetricsError] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
-    const slugs = sponsorAds.map((ad) => ad.slug)
+    const slugs = trackedStartups.map((startup) => startup.slug)
     async function loadSponsorMetrics() {
       try {
         const metrics = await fetchSponsorMetrics(slugs)
@@ -95,12 +102,12 @@ function App() {
     </header>
     <SponsorRail />
     <div className="workspace-frame">
-      <SponsorSideBrand side="left" metrics={sponsorMetrics} onOpen={setOpenedSponsor} />
+      <SponsorSideBrand side="left" />
       <main className="content">
       <div className="welcome-row"><div><p className="eyebrow">SIGNED IN AS {user.email}</p><h1>{view === 'browse' ? 'Find your next launch.' : labelFor(view)}</h1></div><span className="role-pill">{profile?.role || 'buyer'} workspace</span></div>
       {notice && <div className="notice success">{notice}<button onClick={() => setNotice('')}>×</button></div>}
       {error && <div className="notice danger">{error}<button onClick={() => setError(null)}>×</button></div>}
-      {view === 'browse' && <Browse userId={user.id} onNotice={setNotice} onError={setError} />}
+      {view === 'browse' && <><TrackedStartupProfiles metrics={sponsorMetrics} onOpen={setOpenedStartup} /><Browse userId={user.id} onNotice={setNotice} onError={setError} /></>}
       {view === 'sell' && <Sell userId={user.id} profileRole={profile?.role} initialEditingId={editingProjectId} onProjectOpen={openProject} onNotice={setNotice} onError={setError} />}
       {view === 'requests' && <Requests userId={user.id} onNotice={setNotice} onError={setError} />}
       {view === 'saved' && <Saved userId={user.id} onNotice={setNotice} onError={setError} />}
@@ -108,10 +115,10 @@ function App() {
       {view === 'profile' && profileId && <ProfileView profileId={profileId} userId={user.id} onProjectOpen={openProject} onProjectEdit={editProject} onError={setError} onNotice={setNotice} />}
        {view === 'admin' && profile?.role === 'admin' && <Admin onNotice={setNotice} onError={setError} />}
        </main>
-      <SponsorSideBrand side="right" metrics={sponsorMetrics} onOpen={setOpenedSponsor} />
+      <SponsorSideBrand side="right" />
     </div>
     {openedProject && <ProjectPanel project={openedProject} checklist={[]} onClose={() => setOpenedProject(null)} userId={user.id} onNotice={setNotice} onError={setError} />}
-    {openedSponsor && <SponsorMetricsPanel sponsor={openedSponsor} metrics={sponsorMetrics[openedSponsor.slug]} error={sponsorMetricsError} onClose={() => setOpenedSponsor(null)} />}
+    {openedStartup && <SponsorMetricsPanel startup={openedStartup} metrics={sponsorMetrics[openedStartup.slug]} error={sponsorMetricsError} onClose={() => setOpenedStartup(null)} />}
   </div>
 }
 
@@ -132,14 +139,15 @@ function SponsorRail() {
   return <section id="sponsor" className="sponsor-rail" aria-label="Sponsored partners"><div className="sponsor-marquee"><div className="sponsor-track">{repeatedAds.map((ad, index) => <a className="sponsor-ad" href={ad.href} target="_blank" rel="noreferrer" key={`${ad.name}-${index}`}><span className="sponsor-mark">{ad.mark}</span><span className="sponsor-ad-copy"><strong>{ad.name}</strong><small>{ad.message}</small></span><span className="sponsor-category">{ad.category}</span></a>)}</div></div></section>
 }
 
-function SponsorSideBrand({ side, metrics, onOpen }: { side: 'left' | 'right'; metrics: SponsorMetricsBySlug; onOpen: (ad: SponsorAd) => void }) {
-  return <aside className={`sponsor-side-brand sponsor-side-${side}`} aria-label={`${side} sponsored brand placements`}>{sponsorAds.map((ad) => { const metric = metrics[ad.slug]; return <button className="sponsor-side-card" type="button" onClick={() => onOpen(ad)} key={ad.name}><div className="sponsor-side-logo">{ad.logoUrl ? <img src={ad.logoUrl} alt="" /> : ad.mark}</div><h2>{ad.name}</h2><p>{ad.message}</p><div className="sponsor-side-stats"><span><small>Today</small><strong>{formatSponsorMoney(metric?.revenue?.day)}</strong></span><span><small>MRR</small><strong>{formatSponsorMoney(metric?.revenue?.month)}</strong></span></div><small className="sponsor-side-live">{metric?.updatedAt ? `Updated ${formatUpdatedAt(metric.updatedAt)}` : 'Live metrics'}</small></button> })}</aside>
+function SponsorSideBrand({ side }: { side: 'left' | 'right' }) {
+  return <aside className={`sponsor-side-brand sponsor-side-${side}`} aria-label={`${side} sponsored brand placements`}>{sponsorAds.map((ad) => <a className="sponsor-side-card" href={ad.href} key={ad.name}><div className="sponsor-side-logo">{ad.logoUrl ? <img src={ad.logoUrl} alt="" /> : ad.mark}</div><h2>{ad.name}</h2><p>{ad.message}</p><small className="sponsor-side-live">{ad.category}</small></a>)}</aside>
 }
 
 function formatSponsorMoney(value: number | null | undefined, currency = 'USD') { if (value == null) return '—'; return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(value / 100) }
 function formatUpdatedAt(value: string) { const date = new Date(value); return Number.isNaN(date.getTime()) ? 'recently' : date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) }
-function SponsorMetricsPanel({ sponsor, metrics, error, onClose }: { sponsor: SponsorAd; metrics?: SponsorMetrics; error: string | null; onClose: () => void }) {
-  return <div className="overlay"><section className="sponsor-metrics-panel"><button className="close" onClick={onClose}>×</button><div className="sponsor-panel-heading"><div className="sponsor-side-logo">{sponsor.mark}</div><div><span className="eyebrow">LIVE SPONSOR METRICS</span><h2>{sponsor.name}</h2><p>{sponsor.message}</p></div></div>{error && <div className="notice danger">{error}</div>}{!metrics && !error && <p className="muted">Waiting for the metrics endpoint…</p>}{!metrics && error && <p className="muted">Connect the sponsor metrics endpoint to show live earnings and funding data.</p>}{metrics && <><div className="sponsor-metric-grid">{sponsorMetricPeriods.map((period) => <div key={period.key}><small>{period.label}</small><strong>{formatSponsorMoney(metrics.revenue?.[period.key], metrics.currency)}</strong></div>)}</div><div className="sponsor-funding-grid"><div><small>Raised</small><strong>{formatSponsorMoney(metrics.raised, metrics.currency)}</strong></div><div><small>Customers</small><strong>{metrics.customers == null ? '—' : metrics.customers.toLocaleString()}</strong></div><div><small>Active subscriptions</small><strong>{metrics.activeSubscriptions == null ? '—' : metrics.activeSubscriptions.toLocaleString()}</strong></div></div><div className="sponsor-panel-footer"><span>{metrics.source || 'Connected metrics source'}</span><span>{metrics.updatedAt ? `Last updated ${formatUpdatedAt(metrics.updatedAt)}` : 'Update time unavailable'}</span><a href={sponsor.href} target="_blank" rel="noreferrer">Visit {sponsor.name} ↗</a></div></>}</section></div>
+function TrackedStartupProfiles({ metrics, onOpen }: { metrics: SponsorMetricsBySlug; onOpen: (startup: TrackedStartup) => void }) { return <section className="startup-tracking"><div className="panel-heading"><div><span className="eyebrow">TRACKED STARTUPS</span><h2>Startup profiles</h2><p className="muted">Matiks and TrustMRR are listed startups, not sponsors. Click a profile to view available metrics.</p></div></div><div className="startup-tracking-grid">{trackedStartups.map((startup) => { const metric = metrics[startup.slug]; return <button type="button" className="startup-tracking-card" onClick={() => onOpen(startup)} key={startup.slug}><span className="sponsor-side-logo">{startup.mark}</span><span><strong>{startup.name}</strong><small>{startup.category}</small></span><span className="startup-tracking-revenue"><small>30 days</small><strong>{formatSponsorMoney(metric?.revenue?.month, metric?.currency)}</strong></span></button> })}</div></section> }
+function SponsorMetricsPanel({ startup, metrics, error, onClose }: { startup: TrackedStartup; metrics?: SponsorMetrics; error: string | null; onClose: () => void }) {
+  return <div className="overlay"><section className="sponsor-metrics-panel"><button className="close" onClick={onClose}>×</button><div className="sponsor-panel-heading"><div className="sponsor-side-logo">{startup.mark}</div><div><span className="eyebrow">STARTUP METRICS</span><h2>{startup.name}</h2><p>{startup.message}</p></div></div>{error && <div className="notice danger">{error}</div>}{!metrics && !error && <p className="muted">Waiting for the metrics endpoint…</p>}{!metrics && error && <p className="muted">Connect the startup metrics endpoint to show earnings and funding data.</p>}{metrics && <><div className="sponsor-metric-grid">{sponsorMetricPeriods.map((period) => <div key={period.key}><small>{period.label}</small><strong>{formatSponsorMoney(metrics.revenue?.[period.key], metrics.currency)}</strong></div>)}</div><div className="sponsor-funding-grid"><div><small>Raised</small><strong>{formatSponsorMoney(metrics.raised, metrics.currency)}</strong></div><div><small>Customers</small><strong>{metrics.customers == null ? '—' : metrics.customers.toLocaleString()}</strong></div><div><small>Active subscriptions</small><strong>{metrics.activeSubscriptions == null ? '—' : metrics.activeSubscriptions.toLocaleString()}</strong></div></div><div className="sponsor-panel-footer"><span>{metrics.source || 'Connected metrics source'}</span><span>{metrics.updatedAt ? `Last updated ${formatUpdatedAt(metrics.updatedAt)}` : 'Update time unavailable'}</span><a href={startup.href} target="_blank" rel="noreferrer">Visit {startup.name} ↗</a></div></>}</section></div>
 }
 
 type ActionProps = { onNotice: (s: string) => void; onError: (s: string) => void }
@@ -216,7 +224,7 @@ function Admin({ onNotice, onError }: ActionProps) { const [projects, setProject
 function SponsorMetricsAdmin({ onNotice, onError }: ActionProps) {
   const [metrics, setMetrics] = useState<SponsorMetricsBySlug>({})
   const [loading, setLoading] = useState(true)
-  useEffect(() => { void listStoredSponsorMetrics(sponsorAds.map((ad) => ad.slug)).then(setMetrics).catch((e) => onError(e.message)).finally(() => setLoading(false)) }, [])
+  useEffect(() => { void listStoredSponsorMetrics(trackedStartups.map((startup) => startup.slug)).then(setMetrics).catch((e) => onError(e.message)).finally(() => setLoading(false)) }, [])
   function dollarValue(value: number | null | undefined) { return value == null ? '' : String(value / 100) }
   function updateDraft(slug: string, field: string, value: string) {
     setMetrics((current) => {
@@ -227,8 +235,8 @@ function SponsorMetricsAdmin({ onNotice, onError }: ActionProps) {
       return { ...current, [slug]: { ...existing, revenue: { ...existing.revenue, [field]: numeric } } }
     })
   }
-  async function save(ad: SponsorAd) { const metric = metrics[ad.slug] || { slug: ad.slug, revenue: {}, source: 'manual', currency: 'USD' }; try { const saved = await updateStoredSponsorMetric(ad.slug, { ...metric, source: 'manual' }); setMetrics((current) => ({ ...current, [ad.slug]: saved })); onNotice(`${ad.name} metrics saved.`) } catch (e: any) { onError(e.message) } }
-  return <section className="panel wide sponsor-admin"><div className="panel-heading"><div><span className="eyebrow">NO PUBLIC MATIKS API</span><h2>Manual sponsor metrics</h2><p className="muted">Use this fallback until Matiks provides an official data feed. Enter dollar amounts; values are stored as cents.</p></div></div>{loading ? <Spinner label="Loading sponsor metrics…" /> : sponsorAds.map((ad) => { const metric = metrics[ad.slug] || { slug: ad.slug, revenue: {}, currency: 'USD', source: 'manual' }; return <div className="sponsor-admin-row" key={ad.slug}><div><h3>{ad.name}</h3><small className="muted">Source: {metric.source || 'manual'}</small></div><div className="sponsor-admin-fields">{sponsorMetricPeriods.map((period) => <label className="field" key={period.key}><span>{period.label} ($)</span><input type="number" min="0" step="0.01" value={dollarValue(metric.revenue?.[period.key])} onChange={(e) => updateDraft(ad.slug, period.key, e.target.value)} /></label>)}<label className="field"><span>Raised ($)</span><input type="number" min="0" step="0.01" value={dollarValue(metric.raised)} onChange={(e) => updateDraft(ad.slug, 'raised', e.target.value)} /></label><label className="field"><span>Customers</span><input type="number" min="0" value={metric.customers == null ? '' : metric.customers} onChange={(e) => updateDraft(ad.slug, 'customers', e.target.value)} /></label><label className="field"><span>Subscriptions</span><input type="number" min="0" value={metric.activeSubscriptions == null ? '' : metric.activeSubscriptions} onChange={(e) => updateDraft(ad.slug, 'activeSubscriptions', e.target.value)} /></label></div><button className="primary" onClick={() => void save(ad)}>Save {ad.name}</button></div> })}</section>
+  async function save(startup: TrackedStartup) { const metric = metrics[startup.slug] || { slug: startup.slug, revenue: {}, source: 'manual', currency: 'USD' }; try { const saved = await updateStoredSponsorMetric(startup.slug, { ...metric, source: 'manual' }); setMetrics((current) => ({ ...current, [startup.slug]: saved })); onNotice(`${startup.name} metrics saved.`) } catch (e: any) { onError(e.message) } }
+  return <section className="panel wide sponsor-admin"><div className="panel-heading"><div><span className="eyebrow">STARTUP DATA FALLBACK</span><h2>Manual startup metrics</h2><p className="muted">Matiks has no connected public API, so admins can maintain its metrics here. TrustMRR can be synced through the server function.</p></div></div>{loading ? <Spinner label="Loading startup metrics…" /> : trackedStartups.map((startup) => { const metric = metrics[startup.slug] || { slug: startup.slug, revenue: {}, currency: 'USD', source: 'manual' }; return <div className="sponsor-admin-row" key={startup.slug}><div><h3>{startup.name}</h3><small className="muted">Source: {metric.source || 'manual'}</small></div><div className="sponsor-admin-fields">{sponsorMetricPeriods.map((period) => <label className="field" key={period.key}><span>{period.label} ($)</span><input type="number" min="0" step="0.01" value={dollarValue(metric.revenue?.[period.key])} onChange={(e) => updateDraft(startup.slug, period.key, e.target.value)} /></label>)}<label className="field"><span>Raised ($)</span><input type="number" min="0" step="0.01" value={dollarValue(metric.raised)} onChange={(e) => updateDraft(startup.slug, 'raised', e.target.value)} /></label><label className="field"><span>Customers</span><input type="number" min="0" value={metric.customers == null ? '' : metric.customers} onChange={(e) => updateDraft(startup.slug, 'customers', e.target.value)} /></label><label className="field"><span>Subscriptions</span><input type="number" min="0" value={metric.activeSubscriptions == null ? '' : metric.activeSubscriptions} onChange={(e) => updateDraft(startup.slug, 'activeSubscriptions', e.target.value)} /></label></div><button className="primary" onClick={() => void save(startup)}>Save {startup.name}</button></div> })}</section>
 }
 function Empty({ title, detail }: { title: string; detail: string }) { return <div className="empty"><div className="empty-icon">○</div><strong>{title}</strong><p>{detail}</p></div> }
 

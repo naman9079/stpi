@@ -92,7 +92,7 @@ export function subscribeToSponsorMetrics(onChange: () => void) {
 }
 
 export async function fetchSponsorMetrics(slugs: string[]): Promise<SponsorMetricsBySlug> {
-  const endpoint = import.meta.env.VITE_SPONSOR_METRICS_URL?.trim()
+  const endpoint = (import.meta.env.VITE_STARTUP_METRICS_URL || import.meta.env.VITE_SPONSOR_METRICS_URL)?.trim()
   if (slugs.length === 0) return {}
 
   if (!endpoint) return listStoredSponsorMetrics(slugs)
@@ -104,7 +104,11 @@ export async function fetchSponsorMetrics(slugs: string[]): Promise<SponsorMetri
     if (!response.ok) throw new Error(`Sponsor metrics request failed (${response.status}).`)
 
     const payload: unknown = await response.json()
-    const records = isRecord(payload) && isRecord(payload.sponsors) ? payload.sponsors : payload
+    const records = isRecord(payload) && isRecord(payload.startups)
+      ? payload.startups
+      : isRecord(payload) && isRecord(payload.sponsors)
+        ? payload.sponsors
+        : payload
     if (!isRecord(records)) return {}
 
     return Object.fromEntries(Object.entries(records)

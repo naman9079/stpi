@@ -13,17 +13,19 @@ npm run dev
 
 The browser client reads only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. The local env file is ignored by git. Never put a service-role key, database password, or other privileged credential in Vite environment variables.
 
-## Sponsor metrics
+## Startup metrics
 
-The sponsor rail currently contains only **Matiks** and **TrustMRR**. Side cards poll
-`VITE_SPONSOR_METRICS_URL` every 60 seconds and show today, 7-day, 30-day, 3-month,
-6-month, 1-year, lifetime revenue, raised funding, customers, and active subscriptions.
+**Matiks** and **TrustMRR** are tracked startup profiles in the marketplace, not
+sponsors. The sponsor rails remain reserved for sponsor placements. The startup
+profiles poll `VITE_STARTUP_METRICS_URL` every 60 seconds and show today, 7-day,
+30-day, 3-month, 6-month, 1-year, lifetime revenue, raised funding, customers,
+and active subscriptions.
 
 The endpoint must keep provider API keys server-side and return JSON in this shape:
 
 ```json
 {
-  "sponsors": {
+  "startups": {
     "matiks": {
       "revenue": { "day": 10000, "week": 70000, "month": 300000, "threeMonths": 900000, "sixMonths": 1800000, "year": 3600000, "lifetime": 5000000 },
       "raised": 314000000,
@@ -51,7 +53,7 @@ The implemented fallback is:
 1. TrustMRR data is synced by `supabase/functions/sponsor-metrics` when a
    TrustMRR key and startup slug are configured.
 2. Matiks metrics are stored in `public.sponsor_metrics` and can be edited by
-   an admin in the app under **Moderate → Manual sponsor metrics**.
+   an admin in the app under **Moderate → Manual startup metrics**.
 3. The app subscribes to Supabase Realtime changes and still polls the metrics
    endpoint every 60 seconds.
 4. TrustMRR snapshots are stored in `public.sponsor_metric_snapshots` so the
@@ -68,7 +70,7 @@ npx supabase secrets set TRUSTMRR_SPONSOR_SLUGS=matiks,trustmrr
 Then point the frontend at the deployed function:
 
 ```env
-VITE_SPONSOR_METRICS_URL=https://your-project.supabase.co/functions/v1/sponsor-metrics
+VITE_STARTUP_METRICS_URL=https://your-project.supabase.co/functions/v1/sponsor-metrics
 ```
 
 If Matiks later provides an official API, add its server-side credentials to

@@ -109,7 +109,7 @@ Deno.serve(async (request) => {
   for (const slug of slugs) await syncTrustMrr(slug, admin)
   const rows = await admin.from('sponsor_metrics').select('*').in('slug', slugs)
   if (rows.error) return json({ error: rows.error.message }, 500)
-  return json({ sponsors: Object.fromEntries((rows.data || []).map((row: any) => [row.slug, {
+  return json({ startups: Object.fromEntries((rows.data || []).map((row: any) => [row.slug, {
     slug: row.slug,
     revenue: row.revenue,
     raised: row.raised_cents,
